@@ -1,0 +1,9 @@
+.DS_Store
+node_modules 
+.jekyll-cache
+.sass-cache
+.venv
+venv
+dev.alpha/
+resources/
+-P
