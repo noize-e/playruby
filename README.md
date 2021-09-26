@@ -2,7 +2,7 @@
 
 ## LinksReader / Snippet
 
-The idea behind this snippet came from the need of finding from a list with hundreds of records, all the ones related to a specific topic.
+The idea behind this snippet came from the need of finding from a list with hundreds of records(_`url | title` string format_), all the ones related to a specific topic.
 
 For example, given the following list
 
@@ -29,10 +29,10 @@ Then the application shows a list with all the titles from the filtered records.
 
 The development workflow consits of 2 phases.
 
-1. Read and classify the list records
+1. Read and parse the list records
 2. The Iiteractive panel
 
-### Phase1: Read and parse the urls
+### Phase1: Read and parse the list records
 
 #### Display the records titles
 
