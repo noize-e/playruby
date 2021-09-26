@@ -14,12 +14,15 @@ https://css-tricks.com/snippets/css/css-box-shadow/ | CSS Box Shadow | CSS-Trick
 https://www.google.com/search?client=firefox-b-e&q=WP_Query | WP_Query - Google Search
 https://developer.wordpress.org/reference/functions/the_post/ | the_post() | Function | WordPress Developer Resources
 https://developer.wordpress.org/reference/functions/the_excerpt/ | the_excerpt() | Function | WordPress Developer Resources
+...
 ```
+
+Complete list check it here
 
 If only the wanted urls are the ones realted to __`docker`__, the only thing to do is, from a terminal console execute:
 
 ```bash
->_ links_reader.rb < bookmarks.txt
+>_ app.rb < bookmarks.txt
 ```
 
 Then the application shows a list with all the titles from the filtered records.  Now, if a specific title wants to be opened in a web browser, send the ID to the app with the interactive panel.
@@ -33,7 +36,7 @@ The development workflow consits of 2 phases.
 
 #### Display the records titles
 
-Create a new file __`main.rb`__, then load and intialize the __`Links`__ object. Pass as argument the __`ARGF`__ object(_stream for use in scripts that process files given as command-line arguments or passed in via STDIN._) calling its method __`readlines`__(_returns the contents of the given file as an array_).
+Create a new file __`app.rb`__, then load and intialize the __`Links`__ object. Pass as argument the __`ARGF`__ object(_stream for use in scripts that process files given as command-line arguments or passed in via STDIN._) calling its method __`readlines`__(_returns the contents of the given file as an array_).
 
 Specify the topic filter to apply and then call the titles list.
 
@@ -42,4 +45,10 @@ require './lib/links_reader'
 
 links = Links.new(ARGF.readlines)
 p links.filter("docker").titles
+```
+
+Once executed from the terminal it shows:
+
+```
+[[1, "Build your Go image | Docker Documentation"]]
 ```
