@@ -1,6 +1,5 @@
 require 'spec_helper'
-require 'links_reader'
-
+require 'links'
 
 describe Links do
   let(:links) { %{http://docker.com | docker
