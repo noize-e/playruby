@@ -1,0 +1,370 @@
+# template.yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Resources:
+  AppTable:
+    Type: 'AWS::DynamoDB::Table'
+    DeletionPolicy: Delete
+    Properties:
+      TableName: SinatraApp
+      AttributeDefinitions:
+        -
+          AttributeName: id
+          AttributeType: S
+        -
+          AttributeName: sk
+          AttributeType: S
+        -
+          AttributeName: email
+          AttributeType: S
+      KeySchema:
+        -
+          AttributeName: id
+          KeyType: HASH
+        -
+          AttributeName: sk
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        -
+          IndexName: sk_index
+          KeySchema:
+            -
+              AttributeName: sk
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 2
+        -
+          IndexName: email_index
+          KeySchema:
+            -
+              AttributeName: sk
+              KeyType: HASH
+            -
+              AttributeName: email
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 2
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+  SinatraFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: SinatraApp
+      Handler: lambda.handler
+      Runtime: ruby2.5
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AppTable
+      CodeUri: api/
+      MemorySize: 512
+      Timeout: 30
+      Layers:
+        - !Ref FunctionLayer
+      Events:
+        Api1:
+          Type: Api
+          Properties:
+              Path: /api/contact_messages
+              Method: GET
+              RestApiId: !Ref SinatraAPI
+        Api2:
+          Type: Api
+          Properties:
+              Path: /api/contact_messages
+              Method: POST
+              RestApiId: !Ref SinatraAPI
+        Api3:
+          Type: Api
+          Properties:
+              Path: /api/contact_messages/-id-
+              Method: GET
+              RestApiId: !Ref SinatraAPI
+        Api4:
+          Type: Api
+          Properties:
+              Path: /api/lead
+              Method: GET
+              RestApiId: !Ref SinatraAPI
+        Api5:
+          Type: Api
+          Properties:
+              Path: /api/lead
+              Method: POST
+              RestApiId: !Ref SinatraAPI
+  FunctionLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: ruby2-5_vendor
+      Description: A sample Ruby layer
+      ContentUri: layer/layer.zip
+      CompatibleRuntimes:
+        - ruby2.5
+      RetentionPolicy: Delete
+  SinatraAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: SinatraAPI
+      StageName: Prod
+      DefinitionBody:
+        swagger: '2.0'
+        info:
+          description: Kinedu RESTful API on Ruby Sinatra
+          title: SinatraApi
+        basePath: "/prod"
+        schemes:
+        - https
+        paths:
+          "/api/contact_messages":
+            get:
+              produces:
+              - application/json
+              responses:
+                '200':
+                  description: 200 response
+                  schema:
+                    "$ref": "#/definitions/Empty"
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                uri:
+                  !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SinatraFunction.Arn}/invocations'
+                responses:
+                  default:
+                    statusCode: '200'
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                contentHandling: CONVERT_TO_TEXT
+            post:
+              produces:
+              - application/json
+              responses:
+                '200':
+                  description: 200 response
+                  schema:
+                    "$ref": "#/definitions/Empty"
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                uri:
+                  !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SinatraFunction.Arn}/invocations'
+                responses:
+                  default:
+                    statusCode: '200'
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                contentHandling: CONVERT_TO_TEXT
+            options:
+              consumes:
+              - application/json
+              produces:
+              - application/json
+              responses:
+                '200':
+                  description: 200 response
+                  schema:
+                    "$ref": "#/definitions/Empty"
+                  headers:
+                    X-Requested-With:
+                      type: string
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+              x-amazon-apigateway-integration:
+                type: mock
+                responses:
+                  default:
+                    statusCode: '200'
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,OPTIONS,POST,PUT'"
+                      method.response.header.X-Requested-With: "'*'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Requested-With,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                requestTemplates:
+                  application/json: '{"statusCode": 200}'
+                passthroughBehavior: when_no_match
+          "/api/contact_messages/-id-":
+            get:
+              produces:
+              - application/json
+              responses:
+                '200':
+                  description: 200 response
+                  schema:
+                    "$ref": "#/definitions/Empty"
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                uri:
+                  !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SinatraFunction.Arn}/invocations'
+                responses:
+                  default:
+                    statusCode: '200'
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                contentHandling: CONVERT_TO_TEXT
+            options:
+              consumes:
+              - application/json
+              produces:
+              - application/json
+              responses:
+                '200':
+                  description: 200 response
+                  schema:
+                    "$ref": "#/definitions/Empty"
+                  headers:
+                    X-Requested-With:
+                      type: string
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+              x-amazon-apigateway-integration:
+                type: mock
+                responses:
+                  default:
+                    statusCode: '200'
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
+                      method.response.header.X-Requested-With: "'*'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Requested-With,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                    responseTemplates:
+                      application/json: |-
+                        #set($inputRoot = $input.path('$'))
+                        { }
+                requestTemplates:
+                  application/json: '{"statusCode": 200}'
+                passthroughBehavior: when_no_match
+          "/api/lead":
+            get:
+              produces:
+              - application/json
+              responses:
+                '200':
+                  description: 200 response
+                  schema:
+                    "$ref": "#/definitions/Empty"
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                uri:
+                  !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SinatraFunction.Arn}/invocations'
+                responses:
+                  default:
+                    statusCode: '200'
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                contentHandling: CONVERT_TO_TEXT
+            post:
+              produces:
+              - application/json
+              responses:
+                '200':
+                  description: 200 response
+                  schema:
+                    "$ref": "#/definitions/Empty"
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                uri:
+                  !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SinatraFunction.Arn}/invocations'
+                responses:
+                  default:
+                    statusCode: '200'
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                contentHandling: CONVERT_TO_TEXT
+            options:
+              consumes:
+              - application/json
+              produces:
+              - application/json
+              responses:
+                '200':
+                  description: 200 response
+                  schema:
+                    "$ref": "#/definitions/Empty"
+                  headers:
+                    X-Requested-With:
+                      type: string
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+              x-amazon-apigateway-integration:
+                type: mock
+                responses:
+                  default:
+                    statusCode: '200'
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,OPTIONS,POST,PUT'"
+                      method.response.header.X-Requested-With: "'*'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Requested-With,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                requestTemplates:
+                  application/json: '{"statusCode": 200}'
+                passthroughBehavior: when_no_match
+        definitions:
+          Empty:
+            type: object
+            title: Empty Schema
+  ConfigLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    DependsOn:
+    - SinatraFunction
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SinatraFunction
+      Principal: apigateway.amazonaws.com
+  LandpageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+    DeletionPolicy: Delete
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      PolicyDocument:
+        Id: StaticHostPolicy
+        Version: 2012-10-17
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref LandpageBucket
+                - /*
+      Bucket: !Ref LandpageBucket
+Outputs:
+  WebsiteURL:
+    Value: !GetAtt
+      - LandpageBucket
+      - WebsiteURL
+    Description: URL for website hosted on S3
+  S3BucketSecureURL:
+    Value: !Join
+      - ''
+      - - 'https://'
+        - !GetAtt
+          - LandpageBucket
+          - DomainName
+    Description: Name of S3 bucket to hold website content
+  SinatraAppUrl:
+    Description: App endpoint URL
+    Value: !Sub "https://${SinatraAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod"
