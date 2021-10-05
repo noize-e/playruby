@@ -1,0 +1,1 @@
+-I lib/authorizer --require spec_helper

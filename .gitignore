@@ -7,3 +7,7 @@ venv
 dev.alpha/
 resources/
 -P
+.idea
+.ruby-version
+Vagrantfile
+*.zip
