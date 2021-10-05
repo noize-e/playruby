@@ -4,8 +4,7 @@ Authorizer
 
 A ruby application to authorize "banking" transactions.
 
-1. Application
-------------
+## 1. Application
 
 ### 1.1. Architecture
 
@@ -34,8 +33,7 @@ Current application's operation rules validation for violations support
 | insufficient_limit             | __Yes__ |
 | high-frequency-small- interval | __No__  |
 
-2. Environment
---------------
+## 2. Environment
 
 Currently working ruby version is `2.6.5` in the operating system __`OS-X 10.11 El capitan`__
 
@@ -91,7 +89,6 @@ Once it has finished, you can run all the spec by executing:
 bundle exec rspec
 ```
 
-3. Changelog
-------------
+## 3. Changelog
 
 See [CHANGELOG.md](CHANGELOG.md)
